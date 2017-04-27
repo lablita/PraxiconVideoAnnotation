@@ -19,7 +19,7 @@ PraxiconVideoAnnotation requires a config.properties. Create this file according
 ### Video list
 A video list need to be loaded in order to start the annotation. Before the first usage prepare a CSV file containing 2 columns (comma separated), an unique ID of the video resource and its URI.
 
-<ID>,<URI>
+ID,URI
 
 Import it from the interface through the load button.
 
