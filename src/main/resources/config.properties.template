@@ -1,0 +1,7 @@
+### This is a template configuration file: edit it according to your system configuration and save it as "config.properties"
+
+# REQUIRED! Specify the path of your current installation of Wordnet.
+WN_HOME=/opt/WordNet-3.0
+
+# OPTIONAL. Specify the path of Neo4J DB data directory: default is "data/databases/graph.db" in your Neo4J installation folder.
+NEO4J_DB_PATH=
