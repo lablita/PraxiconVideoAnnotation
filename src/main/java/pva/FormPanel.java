@@ -32,7 +32,7 @@ public class FormPanel extends JPanel implements ActionListener
         txtNumAgents = new JTextField(4);
         loadRelationList();
         comboRel = new JComboBox(otherRel);
-        comboRepeat = new JComboBox(new String[]{"No","Yes","continous"});
+        comboRepeat = new JComboBox(new String[]{"No","continous"});
         txtNumAgents.setText("1");
         labOtherRelList = new ArrayList<>();
         txtOtherRelList = new ArrayList<>();
@@ -165,6 +165,7 @@ public class FormPanel extends JPanel implements ActionListener
     private String[] otherRel;
     private String[] otherRel_bw;
     WordnetPanel wnp;
+    boolean setTiming = false;
     
     public PraxiconAction getPraxiconAction()
     {
@@ -177,10 +178,14 @@ public class FormPanel extends JPanel implements ActionListener
         pa.setTool(txtTool.getText());
         pa.setGoal(txtGoal.getText());
         if (txtObj.getText() != null && txtObj.getText().length() > 0) { pa.setObject(txtObj.getText()); }
-        if (txtStime.getText() != null && txtStime.getText().length() > 0 && 
+        if (setTiming && txtStime.getText() != null && txtStime.getText().length() > 0 && 
                 txtEtime.getText() != null && txtEtime.getText().length() > 0)
         { 
             pa.setStartEndTime(Long.parseLong(txtStime.getText()), Long.parseLong(txtEtime.getText()));
+        }
+        if (comboRepeat.getSelectedIndex() == 1) // continous action
+        {
+            pa.setContinuous(true);
         }
         for (int i = 0; i < txtOtherRelList.size(); i++)
         {
@@ -224,6 +229,7 @@ public class FormPanel extends JPanel implements ActionListener
         if (pa.tool != null) { txtTool.setText(pa.tool.getName()); }
         if (pa.object != null) { txtObj.setText(pa.object.getName()); }
         if (pa.super_goal != null) { txtSgoal.setText(pa.super_goal.getName()); }
+        if (pa.continuous) { comboRepeat.setSelectedIndex(1); }
         if (pa.relConcepts != null)
         {
             for (int i = 0; i < pa.relConcepts.size(); i++)
@@ -266,6 +272,11 @@ public class FormPanel extends JPanel implements ActionListener
                 mainPanel.revalidate();
             }
         }
+    }
+    
+    public void setVideoFragment(boolean isFragment)
+    {
+        setTiming = isFragment;
     }
     
     public void setStartTime(String time)

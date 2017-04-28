@@ -107,7 +107,16 @@ public class PlaylistPanel extends JPanel
         table.requestFocus();
         table.getSelectionModel().setSelectionInterval(0,0);
     }
-    
+    public void clearList()
+    {
+        table.validate();
+        //table.setPreferredSize(preferredSize);
+        while (tabModel.getRowCount() > 0)
+        {
+            tabModel.removeRow(0);
+            table.revalidate();
+        }
+    }
     
     private class EnterAction extends AbstractAction
     {

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import org.apache.commons.io.FileUtils;
 
 public class Utils
@@ -47,6 +48,47 @@ public class Utils
         long sec = ms / 1000;
         long mms = ms % 1000;
         return sec + "." + mms;
+    }
+    
+    public static PraxiconAction importActionFromXml_noDb(String xmlFilePath)
+    {
+        PraxiconAction pa = new PraxiconAction();
+        try
+        {
+            JAXBContext jaxbContext = JAXBContext.
+                    newInstance(CollectionOfObjects.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            File xmlFile = new File(xmlFilePath);
+            CollectionOfObjects importedCollectionOfObjects =
+                    (CollectionOfObjects)jaxbUnmarshaller.unmarshal(xmlFile);
+            List<Concepts> listOfConcepts = importedCollectionOfObjects.
+                    getConcepts();
+            List<RelationSets> listOfRelationSets =
+                    importedCollectionOfObjects.
+                    getRelationSets();
+            List<Relations> listOfRelations = importedCollectionOfObjects.
+                    getRelations();
+            for (Concepts c : listOfConcepts)
+            {
+                pa.concepts.addAll(c.getConcepts());
+            }
+            for (Relations r : listOfRelations)
+            {
+                pa.relations.addAll(r.getRelations());
+            }
+            for (RelationSets rs : listOfRelationSets)
+            {
+                pa.relationSets.addAll(rs.getRelationSets());
+            }
+            pa.unpackData();
+        } catch (JAXBException ex) {
+            Logger.getLogger(XmlUtils.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.err.println(Arrays.toString(e.getStackTrace()));
+        }
+        return pa;
     }
     
     public static void importIntoDb(String annotationDirectory, boolean moveToDoneDir)

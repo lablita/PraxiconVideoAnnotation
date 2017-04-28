@@ -95,7 +95,7 @@ public class ActionListPanel extends JPanel
             videoId = playlist.currentIdScene;
         }
         AnnotatedVideo av = null;
-        if (playlist.avl != null)
+        if (playlist.avl != null && playlist.avl.getWorkDir() != null)
         {
             wDir = playlist.avl.getWorkDir();
             av = playlist.avl.getVideoByIndex(playlist.currentIndex);
@@ -105,7 +105,10 @@ public class ActionListPanel extends JPanel
         {
             pa.setActionId(videoId + "_" + i);
             pa.setOutputDir(wDir);
-            pa.setVideo(av.video_url, av.video_id, av.source);
+            if (av != null)
+            {
+                pa.setVideo(av.video_url, av.video_id, av.source);
+            }
             i++;
             pa.saveAction();
         }

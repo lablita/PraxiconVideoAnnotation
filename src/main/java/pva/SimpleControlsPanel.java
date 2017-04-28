@@ -213,6 +213,7 @@ public class SimpleControlsPanel extends JPanel {
                 if (curTime == -1) { return; }
                 if (curTime - 100 < 0) { curTime = 0; }
                 fp.setStartTime(curTime + "");
+                fp.setVideoFragment(true);
                 if (fp.getEndTime().length() > 0 && Long.parseLong(fp.getEndTime()) < curTime)
                 {
                     fp.setEndTime(Math.max(curTime, mediaPlayer.getMediaMeta().getLength()) + "");
@@ -259,6 +260,7 @@ public class SimpleControlsPanel extends JPanel {
                 if (curTime == -1) { return; }
                 if (mediaPlayer.getLength() > -1 && curTime + 100 > mediaPlayer.getLength()) { curTime = mediaPlayer.getLength(); }
                 fp.setEndTime(curTime + "");
+                fp.setVideoFragment(true);
                 if (fp.getStartTime().length() > 0 && Long.parseLong(fp.getStartTime()) > curTime)
                 {
                     fp.setStartTime("0");

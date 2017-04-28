@@ -58,6 +58,7 @@ public class AnnotatedVideoList
     
     public String getWorkDir()
     {
+        if (csvFile == null) { return null; }
         File f = new File(csvFile);
         if (f.exists())
         {

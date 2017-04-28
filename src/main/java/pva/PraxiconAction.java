@@ -31,7 +31,12 @@ public class PraxiconAction
     String outDir;
     List<Concept> relConcepts;
     List<RelationNameForward> relFw;
+    List<VisualRepresentation> multiVr;
     long startTime, endTime;
+    boolean continuous = false;
+    Concept continuousConcept;
+    String wn3continuousKey = "continuous%3:00:01::";
+    boolean videoFragment = false;
     
     public PraxiconAction()
     {
@@ -47,8 +52,58 @@ public class PraxiconAction
         actionId = id;
     }
     
+    public void unpackData()
+    {
+        for (Relation r : relations)
+        {
+            if (r.getLeftArgument().isConcept() && r.getRelationType().getForwardName() == RelationType.RelationNameForward.ACTION_GOAL)
+            {
+                setGoal(r.getRightArgument().getConcept().getName());
+            }
+            else if (r.getLeftArgument().isConcept() && r.getRelationType().getForwardName() == RelationType.RelationNameForward.ACTION_TOOL)
+            {
+                setTool(r.getRightArgument().getConcept().getName());
+            }
+            else if (r.getRightArgument().isConcept() && r.getLeftArgument().isConcept() && r.getRelationType().getForwardName() == RelationType.RelationNameForward.ACTION_OBJECT)
+            {
+                setObject(r.getRightArgument().getConcept().getName());
+            }
+            else if (r.getLeftArgument().isConcept() && r.getRelationType().getForwardName() == RelationType.RelationNameForward.HAS_FREQUENCY && r.getRightArgument().getConcept().getName().equals("wn3continuousKey"))
+            {
+                setContinuous(true);
+            }
+            else if (r.getLeftArgument().isConcept() && r.getRightArgument().isConcept() && r.getLeftArgument().isConcept())
+            {
+                setOtherRel(r.getRelationType().getForwardName(), r.getRightArgument().getConcept().getName(), r.getRightArgument().getConcept().getConceptType());
+            }
+            else if (r.getLeftArgument().isRelationSet() && r.getRightArgument().isConcept() && r.getRelationType().getForwardName() == RelationType.RelationNameForward.ACTION_GOAL)
+            {
+                setSuperGoal(r.getRightArgument().getConcept().getName());
+            }
+        }
+        multiVr = new ArrayList<>();
+        for (Concept c : concepts)
+        {
+            List<VisualRepresentation> vrs = c.getVisualRepresentations();
+            if (vrs != null && ! vrs.isEmpty())
+            {
+                for (VisualRepresentation vr : vrs)
+                {
+                    if (vr.getMediaType() == MediaType.VIDEO && vr.getUri() != null && vr.getName() != null)
+                    {
+                        //String src = "unknown";
+                        //if (vr.getSource() != null && !vr.getSource().isEmpty()) { src = vr.getSource(); }
+                        //setVideo(vr.getUri().getPath(),vr.getName(),src);
+                        multiVr.add(vr);
+                    }
+                }
+            }
+        }
+    }
+    
     public void setStartEndTime(long st, long et)
     {
+        videoFragment = true;
         startTime = st;
         endTime = et;
     }
@@ -127,6 +182,10 @@ public class PraxiconAction
         addRelation(full_action,goal,RelationType.RelationNameForward.ACTION_GOAL);
         addRelation(full_action,tool,RelationType.RelationNameForward.ACTION_TOOL);
         addRelation(full_action,object,RelationType.RelationNameForward.ACTION_OBJECT);
+        if (continuous)
+        {
+            addRelation(full_action,continuousConcept,RelationType.RelationNameForward.HAS_FREQUENCY);
+        }
         if (relConcepts != null)
         {
             for (int i = 0; i < relConcepts.size(); i++)
@@ -202,7 +261,7 @@ public class PraxiconAction
         visual_repr.setSource(videoSource);
         try
         {
-            if (startTime != -1 && endTime != -1)
+            if (videoFragment)
             {
                 visual_repr.setUri(videoUri + "#t=" + Utils.millisToSeconds(startTime) + "," + Utils.millisToSeconds(endTime));
             }
@@ -214,6 +273,23 @@ public class PraxiconAction
         catch (Exception ex)
         {
             Logger.getLogger(PraxiconAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void setContinuous(boolean cont)
+    {
+        continuous = cont;
+        if (continuous)
+        {
+            continuousConcept = cd.getConceptByNameExact(wn3continuousKey);
+            if (continuousConcept == null)
+            {
+                continuousConcept = new Concept();
+                continuousConcept.setConceptType(Concept.ConceptType.FEATURE);
+                continuousConcept.setName(wn3continuousKey);
+                continuousConcept.setSpecificityLevel(Concept.SpecificityLevel.UNKNOWN);
+                continuousConcept.setStatus(Concept.Status.CONSTANT);
+            }
         }
     }
     

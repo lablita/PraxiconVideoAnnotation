@@ -1,10 +1,13 @@
 package pva;
 
 import gr.csri.poeticon.praxicon.CreateNeo4JDB;
+import gr.csri.poeticon.praxicon.db.entities.VisualRepresentation;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,6 +39,7 @@ public class ButtonsPanel extends JPanel
         butSaveFile = this.createIconButton("save.png", 20, 20, "Save action(s) to file");
         butImportDb = this.createIconButton("db.png", 20, 20, "Import all the annotation to Praxicon DB");
         butGraphDb = this.createIconButton("neo4j.png", 20, 20, "Export PraxiconDB to Neo4J Graph Database");
+        butXml = this.createIconButton("xml.png", 20, 20, "Import an XML action file");
         
         toggleButtons(false);
         
@@ -209,6 +213,43 @@ public class ButtonsPanel extends JPanel
                 CreateNeo4JDB.main(new String[]{neo4jDbPath});
             }
         });
+        butXml.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                JPanel butPanel = (JPanel) ((JButton) e.getSource()).getParent();
+                ActionListPanel ap = (ActionListPanel) butPanel.getParent().getComponent(Panels.ACTION_LIST);
+                PlaylistPanel pp = (PlaylistPanel) butPanel.getParent().getComponent(Panels.VIDEO_PLAYLIST);
+                FormPanel fp = (FormPanel) butPanel.getParent().getComponent(Panels.FORM);
+                int returnVal = fc.showOpenDialog(butPanel);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = fc.getSelectedFile();
+                    ap.removeAnyAction();
+                    fp.clearForm(true);
+                    pp.clearList();
+                    PraxiconAction pa = Utils.importActionFromXml_noDb(file.getAbsolutePath());
+                    fp.loadAction(pa);
+                    AnnotatedVideoList avl = new AnnotatedVideoList();
+                    
+                    if (pa.multiVr != null && !pa.multiVr.isEmpty())
+                    {
+                        avl.vlist = new ArrayList<>();
+                        for (VisualRepresentation vr : pa.multiVr)
+                        {
+                            AnnotatedVideo vid = new AnnotatedVideo();
+                            vid.source = vr.getSource();
+                            vid.video_id = vr.getName();
+                            vid.video_url = vr.getUri().toString().replaceAll("#.*$", "");
+                            avl.vlist.add(vid);
+                        }
+                        pp.loadList(avl);
+                    }
+                    toggleButtons(true);
+                }
+            }
+        });
         
         this.add(new JLabel("Add / Save"));
         this.add(new JLabel("Skip / Discard Scene"));
@@ -224,11 +265,12 @@ public class ButtonsPanel extends JPanel
         this.add(butDel);
         this.add(butReset);
         this.add(Box.createHorizontalGlue());
+        //this.add(butXml); XML import is still under development!
         this.add(butGraphDb);
         
     }
     
-    private JButton butSave, butClear, butDel, butSkip, butLoad, butReset, butSaveFile, butImportDb, butGraphDb;
+    private JButton butSave, butClear, butDel, butSkip, butLoad, butReset, butSaveFile, butImportDb, butGraphDb, butXml;
     private JFileChooser fc;
     String neo4jDbPath;
     

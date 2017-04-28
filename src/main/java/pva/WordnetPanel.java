@@ -91,6 +91,11 @@ public class WordnetPanel extends JPanel
         listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         listSelectionModel.addListSelectionListener(new SharedListSelectionHandler());
         table.setSelectionModel(listSelectionModel);
+        table.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked (MouseEvent me) {
+                if (me.getClickCount() == 2) { Utils.pressEnter(); }
+        }});
         tablePane = new JScrollPane(table);
      
         controlPane = new JPanel();
