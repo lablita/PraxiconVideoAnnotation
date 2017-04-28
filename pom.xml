@@ -42,6 +42,16 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>img/*.png</include>
+                    <include>icons/*.png</include>
+                    <include>config.properties</include>
+              </includes>
+            </resource>
+        </resources>    
         <plugins>
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>

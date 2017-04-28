@@ -9,9 +9,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -66,6 +76,7 @@ public class PlaylistPanel extends JPanel
     String playVideo = "Play Video";
     String currentIdScene;
     int currentIndex;
+    File fileDl, fileErr;
     
     public void loadList(AnnotatedVideoList _avl)
     {
@@ -111,8 +122,28 @@ public class PlaylistPanel extends JPanel
             JComponent a = (JComponent) e.getSource();
             JPanel root = (JPanel) a.getParent().getParent().getParent().getParent();
             VideoPanel vplayer = (VideoPanel) root.getComponent(Panels.VIDEO_PLAYER);
-            File temp = new File(System.getProperty("java.io.tmpdir") + File.separator + "annotVideo.mp4");
-            vplayer.setVideo(getClass().getClassLoader().getResource("img/downloading.png").getFile());
+            File temp = new File(System.getProperty("java.io.tmpdir") + File.separator + "pva_annotVideo.mp4");
+            
+            if (fileDl == null || fileErr == null)
+            {
+                fileDl = new File(System.getProperty("java.io.tmpdir") + File.separator + "pva_downloading.png");
+                fileErr = new File(System.getProperty("java.io.tmpdir") + File.separator + "pva_videoError.png");
+                ClassLoader classLoader = getClass().getClassLoader();
+                InputStream is = classLoader.getResourceAsStream("img/downloading.png");
+                InputStream is2 = classLoader.getResourceAsStream("img/videoError.png");
+                try {
+                    Files.copy(is,fileDl.toPath(),StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(is2,fileErr.toPath(),StandardCopyOption.REPLACE_EXISTING);
+                }
+                catch (IOException ex)
+                {
+                    System.err.println("Error: can't load static images.");
+                }
+            }
+            //File fileDl = new File(classLoader.getResource("img/downloading.png").getFile());
+            //File fileErr = new File(classLoader.getResource("img/videoError.png").getFile());
+            vplayer.setVideo(fileErr.getAbsolutePath());
+            vplayer.setVideo(fileDl.getAbsolutePath()); 
             vplayer.play();
             try
             {
@@ -122,7 +153,7 @@ public class PlaylistPanel extends JPanel
             }
             catch (Exception ex)
             {
-                vplayer.setVideo(getClass().getClassLoader().getResource("img/videoError.png").getFile());
+                vplayer.setVideo(fileErr.getAbsolutePath());
                 vplayer.play();
             }
         }

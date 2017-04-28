@@ -40,7 +40,7 @@ public class VideoPanel extends JPanel
         CanvasVideoSurface videoSurface = mediaPlayerFactory.newVideoSurface(canvas);
         player = mediaPlayerFactory.newEmbeddedMediaPlayer();
         player.setVideoSurface(videoSurface);
-        canvas.setVisible(true);
+        canvas.setVisible(true); 
         
         SimpleControlsPanel controls = new SimpleControlsPanel(player,fp);
         this.add(canvas, "wrap,align center");
